@@ -1,0 +1,12 @@
+FROM node
+WORKDIR /app
+COPY package*.json /app
+RUN npm install
+
+COPY . /app
+EXPOSE 3000
+CMD ["npm","start"]
+
+#//all endpoints target on port on localmachine(chosen 8080 in 'docker run ...8080:80..') where container backend is running
+#//now x see frontend go to http://localhost:3000
+  

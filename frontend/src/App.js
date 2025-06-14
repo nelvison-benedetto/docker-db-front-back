@@ -5,6 +5,10 @@ import CourseGoals from './components/goals/CourseGoals';
 import ErrorAlert from './components/UI/ErrorAlert';
 
 function App() {
+
+  const API_URL = 'http://localhost:8080';  
+    //port on localmachine(chosen 8080 in 'docker run ...8080:80..') where container backend is running
+    //now x see frontend go to http://localhost:3000
   const [loadedGoals, setLoadedGoals] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,7 +18,7 @@ function App() {
       setIsLoading(true);
 
       try {
-        const response = await fetch('http://localhost/goals');
+        const response = await fetch(`${API_URL}/goals`);
 
         const resData = await response.json();
 
@@ -39,7 +43,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost/goals', {
+      const response = await fetch(`${API_URL}/goals`, {
         method: 'POST',
         body: JSON.stringify({
           text: goalText,
@@ -78,7 +82,7 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost/goals/' + goalId, {
+      const response = await fetch(`${API_URL}/goals/` + goalId, {
         method: 'DELETE',
       });
 
