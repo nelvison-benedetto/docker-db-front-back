@@ -1,4 +1,5 @@
 FROM node
+ #here its also possible to select a target version of nodejs
 WORKDIR /app
 COPY package*.json /app
 RUN npm install

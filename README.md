@@ -55,11 +55,27 @@ docker run --name cntfrontend --rm -d -p 3000:3000 -it -e CHOKIDAR_USEPOLLING=tr
     - Open file `frontend/src/components/goals/GoalInput.js` and at line 37 change the text 'Add Goal' to 'Add Goal mytest'.
     - Check rendered button text updated on the web page.
 
-### 6. Stop All Containers
+### 6. Stop All Containers & Remove Images
 ```bash
 docker stop cntmongodb
 docker stop cntbackend
 docker stop cntfrontend
+docker rmi imgmongodb imgbackend imgfrontend
+```
+
+### 6. Now Run App w Docker-Compose File
+- Start the app using the docker-compose.yml file
+```bash
+docker-compose up --build -d
+#detached mode
+#docker compose build  //build only the images, no run the cnts
+#docker compose --build  //rebuild the images if there have been any changes + run cnts
+```
+- Open your browser and go to 👉 http://localhost:3000/ and test the behavior of the app.
+- Shut everything down (including volumes)
+```bash
+docker-compose down -v
+#shuts down also the volumes
 ```
 
 ![Reference1](./readmefiles/dbbackfront1.png)

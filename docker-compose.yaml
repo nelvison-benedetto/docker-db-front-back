@@ -1,0 +1,80 @@
+version: "3.8"
+#version compose file format(the YAML schema version)
+services:
+
+
+  mongodb:
+    image: mongo
+    container_name: cntmongodb
+    restart: always
+    #environment: #or env_file, used only in runtime(no during build of the image)!, here i already set them in env_file
+    #  MONGO_INITDB_ROOT_USERNAME: myusername
+    #  MONGO_INITDB_ROOT_PASSWORD: mypassword
+
+    env_file:
+      - ./env/mongo.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongopersistdata:/data/db
+    networks:
+      - netmain
+
+
+
+  backend:  
+    build: 
+      context: ./backend
+      dockerfile: dockerfile
+    image: imgbackend
+    container_name: cntbackend
+    restart: always
+    depends_on:
+      - mongodb  #name of the service that this service depends on
+
+    #args: #used only x build the image!, after if you want to keep them u need to store them in ENV vars
+            #to using these you should add a .env file in root and set MONGODB_USERNAME=myusername MONGODB_PASSWORD=mypassword 
+            #+ in dockerfile add ARG MONGODB_USERNAME ARG MONGODB_PASSWORD and set ENV MONGODB_USERNAME=${MONGODB_USERNAME} ENV MONGODB_PASSWORD=${MONGODB_PASSWORD}
+    #  - MONGODB_USERNAME=${MONGODB_USERNAME}
+    #  - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+    env_file:
+      - ./env/backend.env  #ovveride env vars in dockerfile with those in this file
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/app  #this is a Bind Mount(no necessary ${PWD} to get the path)
+      - logs:/app/logs
+      - /app/node_modules  #anonymous volume
+    networks:
+      - netmain
+
+
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: dockerfile
+    image: imgfrontend
+    container_name: cntfrontend
+    restart: always
+    depends_on:
+      - backend  #name of the service that this service depends on
+
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    stdin_open: true  #keep open input stream  -used in couple with tty x a '-it' functionality
+    tty: true  #x attach terminal              -used in couple with stdin_open x a '-it' functionality
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src  #this is a Bind Mount(no necessary ${PWD} to get the path)
+    networks:
+      - netmain
+
+
+volumes:  #globals, shared across all services
+  mongopersistdata:
+  logs:
+networks:  #globals, shared across all services
+  netmain:
