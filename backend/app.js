@@ -85,7 +85,11 @@ app.delete('/goals/:id', async (req, res) => {
 
 mongoose.connect(
   //'mongodb://host.docker.internal:27017/course-goals',  //connects to target port on localmachine
-  'mongodb://cntmongodb:27017/course-goals',
+  //'mongodb://cntmongodb:27017/course-goals',  //mongodb no auth
+  //'mongodb://myusername:mypassword@cntmongodb:27017/course-goals?authSource=admin',    //creates root user(only x tests!)
+      //auth enabled(PRO, envs better in .env file), mandatory to also pass credentials w  docker run --name cntmongodb -v data:/data/db --rm -d --network netmain -e MONGO_INITDB_ROOT_USERNAME=myusername -e MONGO_INITDB_ROOT_PASSWORD=mypassword mongo
+      //se prima ti eri connesso senza auth, mongodb a creato un volume settato a 'noauth'; per accedere a mongodb con auth elimina quel volume + run cntmongodb
+  `mongodb://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cntmongodb:27017/course-goals?authSource=admin`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -95,7 +99,7 @@ mongoose.connect(
       console.error('FAILED TO CONNECT TO MONGODB');
       console.error(err);
     } else {
-      console.log('CONNECTED TO MONGODB');
+      console.log('CONNECTED TO MONGODB!!');
       app.listen(80);
     }
   }

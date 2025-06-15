@@ -5,4 +5,9 @@ RUN npm install
 
 COPY . /app
 EXPOSE 80
-CMD ["node", "app.js"]
+ENV MONGODB_USERNAME=myusernametooverride
+ENV MONGODB_PASSWORD=mypassword
+  #myusernametooverride & mypassword are default values, if u run cntmongodb w MONGO_INITDB_ROOT_USERNAME=myusername -e MONGO_INITDB_ROOT_PASSWORD=mypassword mongo
+  #when run cntbackend u need to provide MONGODB_USERNAME&MONGODB_PASSWORD (vars used in code row 92) correct x mongodb!
+
+CMD ["npm", "start"]

@@ -7,14 +7,19 @@ docker network create netmain
 
 ### 2. Run MongoDB Container
 ```bash
-docker run --name cntmongodb --rm -d --network netmain mongo
+#docker run --name cntmongodb --rm -d --network netmain mongo
+docker run --name cntmongodb -v mongopersistdata:/data/db --rm -d --network netmain -e MONGO_INITDB_ROOT_USERNAME=myusername -e MONGO_INITDB_ROOT_PASSWORD=mypassword mongo
 ```
 
 ### 3. Build & Run Backend Container
 ```bash
 docker build -t imgbackend .
-docker run --name cntbackend --rm -d -p 8080:80 --network netmain imgbackend
-#before in the code replace 'host.docker.internal' w <namecontainertarget> (row 87)+ rebuild image, still need port 8080 x the frontend(bc is a pure front-side no server)
+#docker run --name cntbackend --rm -d -p 8080:80 --network netmain imgbackend
+#before in the code (row 87) replace 'host.docker.internal' w <namecontainertarget> + rebuild image, still need port 8080 x the frontend(bc is a pure front-side no server)
+#(row 89) use 'mongodb://myusername:mypassword@cntmongodb:27017/course-goals?authSource=admin' to connect w auth(se prima ti eri connesso senza auth, mongodb ha creato un volume settato a 'noauth'; per accedere a mongodb con auth elimina quel volume + run cntmongodb)
+
+docker run --name cntbackend --rm -d -p 8080:80 -v "${PWD}:/app:ro" -v logs:/app/logs -v /app/node_modules -e MONGODB_USERNAME=myusername -e MONGODB_PASSWORD=mypassword --network netmain imgbackend
+#abilitate live-changes sourcecode->cnt thanks to bind mounts + use env vars x pass mongo credentials to cntmongodb
 ```
 
 ### 4. Build & Run Frontend Container
@@ -26,7 +31,19 @@ docker run --name cntfrontend --rm -d -p 3000:3000 -it imgfrontend
 ```
 
 ### 5. Test Application
-Open your browser and go to: 👉 http://localhost:3000/ to verify that all three Docker containers are working correctly.
+- **Access the App** 
+    - Open your browser and visit: 👉 http://localhost:3000/ to verify that all three Docker containers (MongoDB, Backend, Frontend) are working correctly.
+- **Test MongoDB Data Persistence** 
+    - On the webpage, create some tasks/goals.
+    - Stop the backend container
+    - Refresh the page in the browser — you’ll see an error (as expected, the backend is down).
+    - Restart the backend by running a new container.
+    - Refresh the page again: you will see the tasks you created earlier! 
+- **Test Live Changes sourcecode->cnt (docker bind mounts + plugin nodemon live-server)** 
+    - Run the backend container.
+    - `docker logs cntbackend` check message 'CONNECTED TO MONGODB'.
+    - file app.js row 102, change the log message 'CONNECTED TO MONGODB' to 'CONNECTED TO MONGODB!!' and save.
+    - `docker logs cntbackend` check the updated message of the container.
 
 ### 6. Stop All Containers
 ```bash
@@ -34,3 +51,5 @@ docker stop cntmongodb
 docker stop cntbackend
 docker stop cntfrontend
 ```
+
+![Reference1](./readmefiles/dbbackfront1.png)

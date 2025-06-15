@@ -6,7 +6,7 @@ import ErrorAlert from './components/UI/ErrorAlert';
 
 function App() {
 
-  const API_URL = 'http://localhost:8080';  
+  const API_URL = 'http://localhost:8080';
     //port on localmachine(chosen 8080 in 'docker run ...8080:80..') where container backend is running
     //now x see frontend go to http://localhost:3000
   //const API_URL = 'http://cntbackend';  //in questo client-side puro,il browser non puo leggere 'cntbackend'(per leggerlo avresti bisogno di un miniserver, oppure meglio ESPONI CNT BACKEND PORT e nel frontend lo utilizzi x le endpoint)
